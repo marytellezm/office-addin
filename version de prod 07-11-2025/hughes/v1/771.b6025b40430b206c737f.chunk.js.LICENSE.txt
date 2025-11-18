@@ -1,0 +1,3 @@
+/*! @azure/msal-browser v3.7.1 2024-01-23 */
+
+/*! office-add-in-microsoft-graph-react v.1.1.0 (1751644515483) ©  */
