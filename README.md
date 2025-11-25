@@ -132,7 +132,7 @@ src/
 2. Inicie sesión con credenciales de administrador de su tenant de Microsoft 365
 3. Seleccione **Nuevo registro**
 4. Configure los siguientes valores:
-   - **Nombre**: `ExcelGraphDemo` (o el nombre que prefiera)
+   - **Nombre**: `HenkaAddin` (o el nombre que prefiera)
    - **Tipos de cuenta admitidos**: Cuentas en cualquier directorio organizativo y cuentas personales de Microsoft
    - **URI de redirección**: Seleccione "Aplicación de página única (SPA)" y establezca `https://localhost:3000/login/login.html`
 5. Copie el **ID de aplicación (cliente)** para usarlo en el siguiente paso
@@ -150,14 +150,14 @@ src/
 
 1. En el símbolo del sistema, ejecute `start npm start` para iniciar el servidor de desarrollo
 2. En otro símbolo del sistema, ejecute `npm run sideload` para cargar el add-in en Office
-3. El add-in aparecerá en la cinta de Office con un botón **Open Add-in**
+3. El add-in aparecerá en el panel lateral de Office con un botón **Open Add-in**
 
 ## Uso del Add-in
 
 ### Inicio de Sesión
 
-1. Haga clic en el botón **Open Add-in** en la cinta de Office
-2. Haga clic en **Connect to Office 365** para iniciar sesión
+1. Haga clic en el botón **Open Add-in** en el panel lateral de Office
+2. Haga clic en **Conectarse a Office 365** para iniciar sesión
 3. Complete el proceso de autenticación en la ventana emergente
 4. La primera vez se le pedirá consentimiento para los permisos del add-in
 
@@ -230,26 +230,33 @@ El código está organizado en módulos:
 - **Config**: Archivos de configuración
 - **Interfaces**: Definiciones de tipos TypeScript
 
-## Contribución
+## Mejoras Recientes
 
-Este proyecto es un add-in personalizado desarrollado para gestión documental. Para contribuir:
+- ✅ Código limpio: Eliminación de comentarios innecesarios y código comentado
+- ✅ Documentación mejorada: Comentarios importantes traducidos al inglés con formato JSDoc
+- ✅ Optimización: Eliminación de console.logs de depuración
+- ✅ Estructura: Organización mejorada del código y documentación
 
-1. Realice cambios en una rama separada
-2. Pruebe exhaustivamente sus cambios
-3. Documente cualquier nueva funcionalidad
-4. Envíe un pull request con una descripción clara de los cambios
+## Notas Importantes
 
-## Licencia
+### Carpetas Excluidas del Repositorio
 
-Copyright (c) Microsoft Corporation. Todos los derechos reservados.
+Las siguientes carpetas están excluidas del control de versiones (ver `.gitignore`):
 
-Este proyecto ha adoptado el [Código de Conducta de Código Abierto de Microsoft](https://opensource.microsoft.com/codeofconduct/).
+- `prod 02-10-20225/` - Versiones de producción antiguas
+- `version de prod 07-11-2025/` - Versiones de producción
+- `dist/` - Archivos compilados
+- `node_modules/` - Dependencias de Node.js
+- `*.zip` - Archivos comprimidos
 
-## Recursos Adicionales
+### Sistema de Caché
 
-- [Documentación de Microsoft Graph](https://learn.microsoft.com/graph/)
-- [Documentación de Office Add-ins](https://learn.microsoft.com/office/dev/add-ins/overview/office-add-ins)
-- [Documentación de MSAL.js](https://github.com/AzureAD/microsoft-authentication-library-for-js)
+El sistema de caché inteligente está optimizado para la biblioteca `DOCUMENTOS_CLIENTES`:
+
+- Carga inicial de datos en caché local
+- Actualización en segundo plano cuando los datos están obsoletos
+- Búsqueda instantánea en grandes volúmenes de datos
+- Indicadores visuales del estado del caché
 
 ## Soporte
 
@@ -258,3 +265,7 @@ Para problemas o preguntas:
 - Revise la documentación de Office Add-ins
 - Consulte Microsoft Q&A con la etiqueta `office-js-dev`
 - Cree un issue en el repositorio del proyecto
+
+## Licencia
+
+Este proyecto es parte de los ejemplos de Office Add-in de Microsoft.
