@@ -197,10 +197,11 @@ export class SharePointDataService {
     }
   }
 
-  // Método para actualizar el token de acceso
+  /**
+   * Updates the access token used for SharePoint API calls
+   */
   updateAccessToken(newToken: string): void {
     this.accessToken = newToken;
-    // También actualizar en la instancia original si es necesario
   }
 
   private async getClientesOriginal(): Promise<Array<{ id: string; title: string }>> {

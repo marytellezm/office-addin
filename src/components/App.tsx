@@ -4,7 +4,7 @@ import Header from "./Header";
 import { HeroListItem } from "./HeroList";
 import Progress from "./Progress";
 import StartPageBody from "./StartPageBody";
-import DocumentTitleEditor from "./DocumentTitleEditor"; // New component
+import DocumentTitleEditor from "./DocumentTitleEditor";
 import OfficeAddinMessageBar from "./OfficeAddinMessageBar";
 import {
   logoutFromO365,
@@ -34,9 +34,6 @@ export default class App extends React.Component<AppProps, AppState> {
       isInitializing: true, // New state to handle initialization
     };
 
-    // Bind the methods that we want to pass to, and call in, a separate
-    // module to this component. And rename setState to boundSetState
-    // so code that passes boundSetState is more self-documenting.
     this.boundSetState = this.setState.bind(this);
     this.setToken = this.setToken.bind(this);
     this.setUserName = this.setUserName.bind(this);
@@ -44,29 +41,25 @@ export default class App extends React.Component<AppProps, AppState> {
     this.login = this.login.bind(this);
   }
 
-  /*
-    Component Lifecycle
-  */
-  
   async componentDidMount() {
-    // Check for existing authentication when component mounts
     if (this.props.isOfficeInitialized) {
       await this.checkExistingAuthentication();
     }
   }
 
   async componentDidUpdate(prevProps: AppProps) {
-    // If Office just became initialized, check for existing auth
     if (!prevProps.isOfficeInitialized && this.props.isOfficeInitialized) {
       await this.checkExistingAuthentication();
     }
   }
 
+  /**
+   * Checks for existing authentication and automatically signs in if token is valid
+   */
   checkExistingAuthentication = async () => {
     try {
       this.setState({ isInitializing: true });
       
-      // This will automatically set the auth state if user is already logged in
       await initializeAuth(
         this.boundSetState,
         this.setToken,
@@ -161,8 +154,6 @@ export default class App extends React.Component<AppProps, AppState> {
     this.userName = '';
   };
 
-  // Remove the old getFileNames method as we no longer need it
-  // All OneDrive functionality has been replaced with document title editing
 
   render() {
     const { title, isOfficeInitialized } = this.props;
@@ -199,7 +190,6 @@ export default class App extends React.Component<AppProps, AppState> {
     let body;
 
     if (this.state.authStatus === "notLoggedIn") {
-      // Only show login button if user is not logged in
       body = <StartPageBody login={this.login} listItems={this.listItems} />;
     } else if (this.state.authStatus === "loginInProcess") {
       body = (

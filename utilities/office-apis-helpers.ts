@@ -337,7 +337,6 @@ export const logoutFromO365 = async (
   _userName: string,
   _displayError: (x: string) => void
 ) => {
-  console.log('Logout...');
   try {
     cleanupAuth();
     
@@ -351,7 +350,6 @@ export const logoutFromO365 = async (
     });
     setUserName('');
     
-    console.log('Logout completado');
   } catch (error) {
     setState({
       authStatus: 'notLoggedIn',

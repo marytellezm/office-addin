@@ -1,4 +1,3 @@
-// metadata-components.tsx
 import * as React from "react";
 import { Dropdown, IDropdownOption, ComboBox, IComboBox, IComboBoxOption, Spinner, SpinnerSize } from "office-ui-fabric-react";
 import { MetadataComponentsProps, MetadataState } from "../interfaces/interfaces";
@@ -208,7 +207,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
 
   private handleClienteChange = async (_event: React.FormEvent<IComboBox>, option?: IComboBoxOption, _index?: number, value?: string) => {
     if (option) {
-      // const cliente = { id: option.key as string, title: option.text };
       const realId = (option.key as string).split('-')[1];
       const cliente = { id: realId, title: option.text };
 
@@ -268,30 +266,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
     this.filterClientes(value);
   };
 
-  //   private renderPerformanceInfo = () => {
-  //   const cacheMetadata = this.props.dataService.getCacheMetadata();
-
-  //   if (!cacheMetadata || this.props.bibliotecaId !== "DOCUMENTOS_CLIENTES") {
-  //     return null;
-  //   }
-
-  //   return (
-  //     <div style={{ 
-  //       fontSize: '11px', 
-  //       color: '#666', 
-  //       marginBottom: '8px',
-  //       padding: '4px 8px',
-  //       backgroundColor: '#f0f8ff',
-  //       borderRadius: '3px',
-  //       border: '1px solid #e1e8ed'
-  //     }}>
-  //       ⚡ Datos cargados desde cache local - Rendimiento optimizado
-  //       {cacheMetadata.isStale && (
-  //         <span style={{ color: '#ff8c00' }}> • Actualizando en segundo plano</span>
-  //       )}
-  //     </div>
-  //   );
-  // };
 
   private getSelectedAsuntoKey = (): string | undefined => {
     if (!this.state.selectedAsunto) return undefined;
@@ -313,7 +287,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
       subasuntos,
       subTiposDocumento,
     } = this.state;
-    // const clienteOptions: IComboBoxOption[] = clientesFiltered.map(c => ({ key: c.id, text: c.title }));
     const clienteOptions: IComboBoxOption[] = clientesFiltered.map((c, index) => ({
       key: `cliente-${c.id}-${index}`, // ← Agregar prefijo e índice
       text: c.title
@@ -373,7 +346,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                 label="Asunto"
                 placeholder="Seleccione un asunto..."
                 options={this.getAsuntoOptions()}
-                // selectedKey={this.state.selectedAsunto?.id}
                 selectedKey={this.getSelectedAsuntoKey()}
                 onChange={this.handleAsuntoSelect}
                 calloutProps={{
@@ -442,10 +414,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                 options={this.getSubtipoOptions()}
                 selectedKey={this.state.selectedSubTipoDocumento?.id}
                 onChange={this.handleSubTipoDocumentoSelect}
-                // onChange={(_event, option) => {
-                //   this.setState({ selectedSubTipoDocumento: option ? { id: option.key as string, title: option.text } : null });
-                //   this.updateMetadata();
-                // }}
                 calloutProps={{
                   calloutMaxHeight: 300,
                   calloutMaxWidth: 400,
@@ -1109,7 +1077,12 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
     }
   };
 
-  // MÉTODO HELPER: Buscar ID real en una lista de opciones por título
+  /**
+   * Finds the ID of an option by matching its title (case-insensitive)
+   * @param options - Array of options with id and title properties
+   * @param title - Title to search for
+   * @returns The matching option's ID or null if not found
+   */
   private findIdByTitle = (options: any[], title: string): string | null => {
     if (!options || !title) return null;
 
@@ -1123,24 +1096,11 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
 
   private loadInternoDependentData = async (existingMetadata: any) => {
     try {
-      console.log("Cargando carpetas dependientes para INTERNO...");
-      console.log("ExistingMetadata:", existingMetadata);
-      console.log("Estado actual de carpetas:", {
-        carpeta1: this.state.selectedCarpeta1,
-        carpeta2: this.state.selectedCarpeta2,
-        carpeta3: this.state.selectedCarpeta3,
-        carpeta4: this.state.selectedCarpeta4,
-        carpeta5: this.state.selectedCarpeta5,
-        carpeta6: this.state.selectedCarpeta6,
-        carpeta7: this.state.selectedCarpeta7
-      });
-
       if (this.state.selectedCarpeta1) {
         try {
           const carpeta2Options = await this.props.dataService.getCarpeta2ByCarpeta1(this.state.selectedCarpeta1.id);
           await new Promise<void>((resolve) => {
             this.setState({ carpeta2Options }, () => {
-              console.log("Carpeta2 opciones establecidas en el estado");
               resolve();
             });
           });
@@ -1172,9 +1132,12 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
     }
   };
 
+  /**
+   * Loads dependent folder options (Carpeta3 through Carpeta7) in hierarchical order
+   * and restores selections from existing metadata
+   */
   private loadCarpeta3AndBeyond = async (existingMetadata: any) => {
     try {
-      // Cargar Carpeta3
       if (this.state.selectedCarpeta2) {
         const carpeta3Options = await this.props.dataService.getCarpeta3ByCarpeta2(this.state.selectedCarpeta2.id, this.state.selectedCarpeta2.title);
 
@@ -1184,7 +1147,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
           });
         });
 
-        // Buscar ID real de Carpeta3
         if (this.state.selectedCarpeta3 && existingMetadata.Carpeta3) {
           const carpeta3RealId = this.findIdByTitle(carpeta3Options, existingMetadata.Carpeta3);
 
@@ -1200,7 +1162,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
               });
             });
 
-            // Cargar Carpeta4
             const carpeta4Options = await this.props.dataService.getCarpeta4ByCarpeta3(carpeta3RealId, existingMetadata.Carpeta3);
 
             await new Promise<void>((resolve) => {
@@ -1209,7 +1170,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
               });
             });
 
-            // Buscar ID real de Carpeta4
             if (this.state.selectedCarpeta4 && existingMetadata.Carpeta4) {
               const carpeta4RealId = this.findIdByTitle(carpeta4Options, existingMetadata.Carpeta4);
 
@@ -1225,7 +1185,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                   });
                 });
 
-                // Cargar Carpeta5
                 const carpeta5Options = await this.props.dataService.getCarpeta5ByCarpeta4(carpeta4RealId, existingMetadata.Carpeta4);
 
                 await new Promise<void>((resolve) => {
@@ -1234,7 +1193,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                   });
                 });
 
-                // Buscar ID real de Carpeta5
                 if (this.state.selectedCarpeta5 && existingMetadata.Carpeta5) {
                   const carpeta5RealId = this.findIdByTitle(carpeta5Options, existingMetadata.Carpeta5);
 
@@ -1250,7 +1208,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                       });
                     });
 
-                    // Cargar Carpeta6
                     const carpeta6Options = await this.props.dataService.getCarpeta6ByCarpeta5(carpeta5RealId);
 
                     await new Promise<void>((resolve) => {
@@ -1259,7 +1216,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                       });
                     });
 
-                    // Buscar ID real de Carpeta6
                     if (this.state.selectedCarpeta6 && existingMetadata.Carpeta6) {
                       const carpeta6RealId = this.findIdByTitle(carpeta6Options, existingMetadata.Carpeta6);
 
@@ -1275,7 +1231,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
                           });
                         });
 
-                        // Cargar Carpeta7
                         const carpeta7Options = await this.props.dataService.getCarpeta7ByCarpeta6(carpeta6RealId);
 
                         await new Promise<void>((resolve) => {
@@ -1293,12 +1248,14 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
         }
       }
     } catch (error) {
-      console.error("Error en loadCarpeta3AndBeyond:", error);
+      console.error("Error loading dependent folders:", error);
     }
   };
 
+  /**
+   * Loads and restores existing metadata for CLIENTES library
+   */
   private loadExistingClientesMetadata = async (existingMetadata: any, newState: Partial<MetadataState>) => {
-    // Cliente
     if (existingMetadata.Cliente) {
       const clienteEnLista = this.state.clientes.find(c => {
         const match = c.title.toLowerCase().trim() === existingMetadata.Cliente.toLowerCase().trim();
@@ -1318,31 +1275,22 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
         };
         newState.clienteSearchText = existingMetadata.Cliente;
       }
-    } else {
-      console.log("No hay existingMetadata.Cliente");
     }
 
-    // Asunto
     if (existingMetadata.Asunto) {
       newState.selectedAsunto = {
         id: existingMetadata.Asunto,
         title: existingMetadata.Asunto
       };
-    } else {
-      console.log("No hay existingMetadata.Asunto");
     }
 
-    // Subasunto
     if (existingMetadata.S_Asunto) {
       newState.selectedSubasunto = {
         id: existingMetadata.S_Asunto,
         title: existingMetadata.S_Asunto
       };
-    } else {
-      console.log("No hay existingMetadata.S_Asunto");
     }
 
-    // Tipo Documento
     if (existingMetadata.Tipo_Doc) {
       const tipoEnLista = this.state.tiposDocumento.find(t => {
         const match = t.id.toLowerCase().trim() === existingMetadata.Tipo_Doc.toLowerCase().trim();
@@ -1357,18 +1305,13 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
           title: existingMetadata.Tipo_Doc
         };
       }
-    } else {
-      console.log("No hay existingMetadata.Tipo_Doc");
     }
 
-    // Subtipo Documento
     if (existingMetadata.S_Tipo) {
       newState.selectedSubTipoDocumento = {
         id: existingMetadata.S_Tipo,
         title: existingMetadata.S_Tipo
       };;
-    } else {
-      console.log("No hay existingMetadata.S_Tipo");
     }
   };
 
@@ -1410,8 +1353,10 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
     }
   };
 
+  /**
+   * Loads and restores existing metadata for CONSULADO library
+   */
   private loadExistingConsuladoMetadata = async (existingMetadata: any, newState: Partial<MetadataState>) => {
-    // Nivel 1
     if (existingMetadata.Nivel1) {
       const nivel1EnLista = this.state.nivel1Options.find(n =>
         n.title.toLowerCase().trim() === existingMetadata.Nivel1.toLowerCase().trim()
@@ -1430,7 +1375,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
       }
     }
 
-    // Nivel 2
     if (existingMetadata.Nivel2) {
       const nivel2EnLista = this.state.nivel2Options.find(n =>
         n.title.toLowerCase().trim() === existingMetadata.Nivel2.toLowerCase().trim()
@@ -1450,8 +1394,10 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
     }
   };
 
+  /**
+   * Loads and restores existing metadata for CONTADURIA library
+   */
   private loadExistingContaduriaMetadata = async (existingMetadata: any, newState: Partial<MetadataState>) => {
-    // Tema
     if (existingMetadata.Tema) {
       const temaEnLista = this.state.temasContaduria.find(t =>
         t.title.toLowerCase().trim() === existingMetadata.Tema.toLowerCase().trim()
@@ -1470,7 +1416,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
       }
     }
 
-    // SubTema
     if (existingMetadata.SubTema) {
       newState.selectedSubtema = {
         id: existingMetadata.SubTema,
@@ -1478,7 +1423,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
       };
     }
 
-    // TipoDoc
     if (existingMetadata.TipoDoc) {
       const tipoDocEnLista = this.state.tiposDocumentoContaduria.find(t =>
         t.title.toLowerCase().trim() === existingMetadata.TipoDoc.toLowerCase().trim()
@@ -1579,15 +1523,6 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
       };
     }
 
-    console.log("Estado final para Interno:", {
-      carpeta1: newState.selectedCarpeta1,
-      carpeta2: newState.selectedCarpeta2,
-      carpeta3: newState.selectedCarpeta3,
-      carpeta4: newState.selectedCarpeta4,
-      carpeta5: newState.selectedCarpeta5,
-      carpeta6: newState.selectedCarpeta6,
-      carpeta7: newState.selectedCarpeta7
-    });
   };
 
   private loadClientesDependentDataFixed = async (existingMetadata: any) => {
@@ -1696,14 +1631,13 @@ export class MetadataComponents extends React.Component<MetadataComponentsProps,
       .replace(/[\u0300-\u036f]/g, "");
   };
 
+  /**
+   * Refreshes all data for the current library and reloads existing metadata if available
+   */
   public refreshData = async () => {
-    // Resetear todas las selecciones
     this.resetAllSelections();
-    
-    // Recargar datos para la biblioteca actual
     await this.loadDataForLibrary();
     
-    // Si hay metadatos existentes, recargarlos también
     if (this.props.existingMetadata) {
       this.setState({ hasLoadedExistingMetadata: false });
       setTimeout(async () => {

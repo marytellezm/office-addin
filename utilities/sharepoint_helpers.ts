@@ -1,5 +1,6 @@
-/*
- * SharePoint integration utilities for Office Add-in - VERSIÓN CON NOMBRE DERIVADO
+/**
+ * SharePoint integration utilities for Office Add-in
+ * Provides functions for interacting with SharePoint document libraries via Microsoft Graph API
  */
 import { DriveInfo, SharePointResponse } from "../src/interfaces/interfaces";
 
@@ -112,7 +113,6 @@ export const uploadToSharePoint = async (
         return drive.name === "DOCUMENTOS_CLIENTES";
       }
       
-      // Para otros drives, usar la lógica original
       return drive.name === libraryId ||
              drive.id === libraryId ||
              drive.name.includes(libraryId);
@@ -151,7 +151,6 @@ export const findDocumentLibrary = async (
       }
       const siteId = siteResponse.data;
 
-      // Get all drives
       const drivesResponse = await getSharePointDrives(accessToken, siteId);
       if (!drivesResponse.success) {
         throw new Error(`Failed to get drives: ${drivesResponse.error}`);
@@ -180,8 +179,6 @@ export const findDocumentLibrary = async (
               if (siteIndex !== -1 && pathSegments.length > siteIndex + 2) {
                 urlDerivedFileName = decodeURIComponent(pathSegments[pathSegments.length - 1]);
               }
-            } else {
-              console.log("No se pudo obtener URL completa:", result.error ? result.error.message : "Unknown error");
             }
             resolve(result);
           });
@@ -197,13 +194,9 @@ export const findDocumentLibrary = async (
         const url = new URL(effectiveUrl);
         const pathSegments = url.pathname.split('/').filter(segment => segment);
         const siteIndex = pathSegments.indexOf('sites');
-        console.log('DEBUG findDocumentLibrary - effectiveUrl:', effectiveUrl);
-        console.log('DEBUG findDocumentLibrary - pathSegments:', pathSegments);
         if (siteIndex !== -1 && pathSegments.length > siteIndex + 2) {
           const driveName = pathSegments[siteIndex + 2];
           const relativePath = pathSegments.slice(siteIndex + 3).join('/');
-          console.log('DEBUG findDocumentLibrary - driveName:', driveName);
-          console.log('DEBUG findDocumentLibrary - relativePath:', relativePath);
           
           const driveNameMappings: { [key: string]: string[] } = {
             'DOCUMENTOS_CONSULADO': ['DOCUMENTOS_CONSULADO', 'documentos_consulado'],
@@ -238,13 +231,7 @@ export const findDocumentLibrary = async (
             const decodedRelativePath = decodeURIComponent(relativePath);
             const pathWithNewFileName = decodedRelativePath.replace(/[^/]+$/, targetFileName);
 
-            console.log('DEBUG findDocumentLibrary - drive found:', drive.name);
-            console.log('DEBUG findDocumentLibrary - targetFileName:', targetFileName);
-            console.log('DEBUG findDocumentLibrary - decodedRelativePath:', decodedRelativePath);
-            console.log('DEBUG findDocumentLibrary - pathWithNewFileName:', pathWithNewFileName);
-
             const fileUrl = `https://graph.microsoft.com/v1.0/drives/${driveIdFromUrl}/root:/${encodeURIComponent(pathWithNewFileName)}`;
-            console.log('DEBUG findDocumentLibrary - fileUrl:', fileUrl);
             let attempt = 0;
             while (attempt < MAX_RETRIES) {
               try {
@@ -273,17 +260,12 @@ export const findDocumentLibrary = async (
                 }
               }
             }
-          } else {
-            console.log(`Drive ${driveName} no encontrado en la lista de drives disponibles:`, drives.map((d: any) => d.name));
           }
-        } else {
-          console.log(`URL efectiva no contiene biblioteca válida: ${effectiveUrl}`);
         }
       } catch (urlError) {
-        console.log(`Error parseando URL efectiva ${effectiveUrl}:`, urlError.message);
+        // Error parseando URL efectiva
       }
 
-      // If fileId is provided, try direct lookup
       if (fileId) {
         const targetDrives = drives.filter((drive: DriveInfo) =>
           drive.name.toLowerCase() === 'documentos_admin_rrhh' ||
@@ -314,7 +296,6 @@ export const findDocumentLibrary = async (
               if (attempt < MAX_RETRIES) {
                 await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * attempt));
               } else {
-                console.log(`Error final buscando por fileId en drive ${drive.name}:`, fileIdError.message);
                 break;
               }
             }
@@ -322,7 +303,6 @@ export const findDocumentLibrary = async (
         }
       }
 
-      // If URL and fileId fail, mark as new document (no search due to large drives)
       return {
         success: false,
         error: `File "${fileName}" not found via URL or fileId`,

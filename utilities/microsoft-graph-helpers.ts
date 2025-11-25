@@ -16,7 +16,6 @@ let tokenRenewalFunction: (() => Promise<string | null>) | null = null;
  */
 export const registerTokenRenewal = (renewalFn: () => Promise<string | null>) => {
   tokenRenewalFunction = renewalFn;
-  console.log('✅ Función de renovación de token registrada');
 };
 
 // Función para delay
@@ -83,12 +82,8 @@ export const getGraphData = async (
   let currentToken = accessToken;
   let lastError: AxiosError;
   
-  console.log(`📡 [GET] ${url}`);
-  
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`📤 Intento ${attempt + 1}/${maxRetries + 1}`);
-      
       const response = await axios({
         url,
         method: 'get',
@@ -107,18 +102,14 @@ export const getGraphData = async (
 
       // Si es exitoso
       if (response.status >= 200 && response.status < 300) {
-        console.log(`✅ Éxito en intento ${attempt + 1}: ${response.status}`);
         return response;
       }
 
       // Si es 401 y tenemos función de renovación
       if (response.status === 401 && attempt < maxRetries && tokenRenewalFunction) {
-        console.log(`🔑 Token expirado (401), intentando renovar...`);
-        
         try {
           const newToken = await tokenRenewalFunction();
           if (newToken && newToken !== currentToken) {
-            console.log('✅ Token renovado exitosamente');
             currentToken = newToken;
             await delay(getRetryDelay(attempt));
             continue;
@@ -150,7 +141,6 @@ export const getGraphData = async (
       const retryAfter = lastError.response?.headers?.['retry-after'];
       const retryDelay = getRetryDelay(attempt, retryAfter);
       
-      console.log(`⏳ Esperando ${retryDelay}ms...`);
       await delay(retryDelay);
     }
   }
@@ -190,12 +180,8 @@ export const postGraphData = async (
   let currentToken = accessToken;
   let lastError: AxiosError;
   
-  console.log(`📡 [${method}] ${url}`);
-  
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`📤 ${method} Intento ${attempt + 1}/${maxRetries + 1}`);
-      
       const response = await axios({
         url,
         method: method.toLowerCase() as any,
@@ -214,12 +200,10 @@ export const postGraphData = async (
       });
 
       if (response.status >= 200 && response.status < 300) {
-        console.log(`✅ ${method} exitoso: ${response.status}`);
         return response;
       }
 
       if (response.status === 401 && attempt < maxRetries && tokenRenewalFunction) {
-        console.log(`🔑 Token expirado en ${method}, renovando...`);
         
         try {
           const newToken = await tokenRenewalFunction();

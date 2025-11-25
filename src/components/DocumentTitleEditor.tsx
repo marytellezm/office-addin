@@ -92,10 +92,9 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
     await this.detectCurrentLibrary();
     await this.initializeDataService();
     
-    // Sincronización automática al cargar el complemento
     setTimeout(async () => {
-      await this.handleForceSync(false); // No mostrar mensajes en sincronización automática
-    }, 2000); // Esperar 2 segundos para que termine la carga inicial
+      await this.handleForceSync(false);
+    }, 2000);
     
     if (this.state.pendingSync) {
       setTimeout(() => {
@@ -104,57 +103,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
     }
   }
 
-  //   private renderCacheControls = () => {
-  //   const cacheMetadata = this.dataService.getCacheMetadata();
-  //   const isUpdating = this.dataService.isUpdatingCache();
-
-  //   if (!cacheMetadata) return null;
-
-  //   return (
-  //     <div style={{ 
-  //       padding: '10px', 
-  //       backgroundColor: '#f8f9fa', 
-  //       border: '1px solid #e0e0e0', 
-  //       borderRadius: '4px',
-  //       marginBottom: '16px',
-  //       fontSize: '12px'
-  //     }}>
-  //       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-  //         <span>
-  //           📊 Cache: {cacheMetadata.recordCount.toLocaleString()} registros
-  //           {cacheMetadata.isStale && <span style={{ color: '#ff8c00' }}> (actualizando...)</span>}
-  //         </span>
-  //         <div>
-  //           <button
-  //             onClick={() => this.dataService.forceRefreshCache()}
-  //             disabled={isUpdating}
-  //             style={{
-  //               padding: '4px 8px',
-  //               fontSize: '11px',
-  //               marginRight: '8px',
-  //               border: '1px solid #ccc',
-  //               borderRadius: '3px',
-  //               backgroundColor: isUpdating ? '#f0f0f0' : 'white',
-  //               cursor: isUpdating ? 'not-allowed' : 'pointer'
-  //             }}
-  //           >
-  //             {isUpdating ? '🔄 Actualizando...' : '🔄 Actualizar'}
-  //           </button>
-  //           <button
-  //             onClick={() => {
-  //               this.dataService.clearCache();
-  //               this.setState({
-  //                 message: "Cache limpiado. Los datos se recargarán en la próxima sesión.",
-  //                 messageType: MessageBarType.info,
-  //                 showMessage: true
-  //               });
-  //             }}
-  //             style={{
-  //               padding: '4px 8px',
-  //               fontSize: '11px',
-  //               border: '1px solid #ccc',
-  //               borderRadius: '3px',
-  //               backgroundColor: 'white',
   //               cursor: 'pointer'
   //             }}
   //           >
@@ -241,7 +189,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
           const document = context.document;
           document.load("saved");
           const properties = document.properties;
-          console.log(properties);
           properties.load("title");
           await context.sync();
           title = properties.title || "Untitled Document";
@@ -310,10 +257,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
   // private extractBaseTitle = (fullTitle: string): string => {
   //   const fileExtension = this.getFileExtension();
   //   let titleWithoutExtension = fullTitle.replace(fileExtension, '');
-  //   const docIdPattern = /-\d+$/;
-  //   const baseTitle = titleWithoutExtension.replace(docIdPattern, '');
-  //   return baseTitle;
-  // };
 
   private extractDocId = (fullTitle: string): string => {
     const fileExtension = this.getFileExtension();
@@ -469,7 +412,7 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
           });
         }
       } catch (urlError) {
-        console.log("No se pudo obtener URL del documento:", urlError);
+        // Continue without document URL if retrieval fails
       }
 
       let bibliotecaFromUrl = this.detectLibraryFromUrl(documentUrl);
@@ -487,10 +430,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
         if (bibliotecaFromUrl) matchingLibrary = BIBLIOTECAS_DISPONIBLES.find(lib => lib.id === bibliotecaFromUrl);
         if (!matchingLibrary) matchingLibrary = this.findLibraryByDriveName(driveName);
         
-        console.log('DEBUG - bibliotecaFromUrl:', bibliotecaFromUrl);
-        console.log('DEBUG - driveName:', driveName);
-        console.log('DEBUG - matchingLibrary:', matchingLibrary);
-        
         if (matchingLibrary) {
           const docId = this.extractDocId(this.state.currentTitle);
           const isExisting = !!docId || !!fileId;
@@ -504,7 +443,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
             messageType: MessageBarType.info,
             showMessage: false
           });
-          console.log('DEBUG - calling loadExistingDocumentMetadata with library:', matchingLibrary.id);
           await this.loadExistingDocumentMetadata(matchingLibrary.id);
         } else {
           console.warn('No se pudo determinar la biblioteca correcta para:', driveName);
@@ -609,7 +547,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
   };
 
   loadExistingDocumentMetadata = async (bibliotecaId: string) => {
-    console.log('DEBUG loadExistingDocumentMetadata - bibliotecaId:', bibliotecaId, 'currentFileId:', this.state.currentFileId);
     if (!this.state.currentFileId) return;
     try {
       this.setState({ isLoadingExistingMetadata: true });
@@ -624,14 +561,11 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
       }
 
       const drives = drivesResponse.data;
-      // Use the correct drive name mapping for DOCUMENTOS_CLIENTES
       const driveName = this.getDriveNameFromLibraryId(bibliotecaId);
-      console.log('DEBUG loadExistingDocumentMetadata - driveName:', driveName);
       const targetDrive = drives.find((drive: any) =>
         drive.name === driveName ||
         drive.id === driveName
       );
-      console.log('DEBUG loadExistingDocumentMetadata - targetDrive found:', targetDrive?.name);
 
       if (targetDrive) {
         const fileInfoResponse = await fetch(
@@ -1084,23 +1018,12 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
   };
 
   private handleCloseDocumentConfirm = async () => {
-    console.log('DEBUG handleCloseDocumentConfirm - Starting');
-    console.log('DEBUG handleCloseDocumentConfirm - Current state:', {
-      pendingSaveData: this.state.pendingSaveData,
-      selectedBiblioteca: this.state.selectedBiblioteca,
-      currentFileId: this.state.currentFileId
-    });
     this.setState({ showCloseDocumentDialog: false, isSaving: true });
 
     try {
-      console.log('DEBUG handleCloseDocumentConfirm - Calling writeToMetadataQueue');
       await this.writeToMetadataQueue();
-      console.log('DEBUG handleCloseDocumentConfirm - writeToMetadataQueue completed successfully');
 
-      // 2. Cerrar el documento
-      console.log('DEBUG handleCloseDocumentConfirm - About to close document');
       await this.closeOfficeDocument();
-      console.log('DEBUG handleCloseDocumentConfirm - Document closed successfully');
 
       this.setState({
         isSaving: false,
@@ -1132,14 +1055,10 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
   };
 
   private writeToMetadataQueue = async (): Promise<void> => {
-    console.log('DEBUG writeToMetadataQueue - Starting, pendingSaveData:', this.state.pendingSaveData);
-    console.log('DEBUG writeToMetadataQueue - Function called successfully');
     try {
       if (!this.state.pendingSaveData) {
-        console.log('DEBUG writeToMetadataQueue - No pendingSaveData, throwing error');
         throw new Error("No hay datos para procesar");
       }
-      console.log('DEBUG writeToMetadataQueue - pendingSaveData exists, proceeding');
 
       const siteResponse = await getSiteId(this.props.accessToken, this.SITE_URL);
       if (!siteResponse.success) {
@@ -1152,7 +1071,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
       }
 
       const drives = drivesResponse.data;
-      // Use the correct drive name mapping for DOCUMENTOS_CLIENTES
       const driveName = this.getDriveNameFromLibraryId(this.state.selectedBiblioteca);
       const targetDrive = drives.find((drive: any) =>
         drive.name === driveName ||
@@ -1163,47 +1081,36 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
         throw new Error("No se encontró la biblioteca");
       }
 
-    // Obtener información del archivo para conseguir el ID único de SharePoint
+    /**
+     * Retrieves the SharePoint list item ID for the current file
+     * This is the numeric ID from SharePoint's ID column, not the file ID
+     */
     let sharepointItemId = null;
-    console.log('DEBUG sharepointUniqueId - currentFileId:', this.state.currentFileId);
-    console.log('DEBUG sharepointUniqueId - targetDrive.id:', targetDrive.id);
-    console.log('DEBUG sharepointUniqueId - targetDrive.name:', targetDrive.name);
     
     if (this.state.currentFileId) {
       try {
         const url = `https://graph.microsoft.com/v1.0/drives/${targetDrive.id}/items/${this.state.currentFileId}/listItem?$select=id`;
-        console.log('DEBUG sharepointUniqueId - Fetching URL:', url);
         
         const fileInfoResponse = await fetch(url, {
           headers: { Authorization: `Bearer ${this.props.accessToken}` }
         });
         
-        console.log('DEBUG sharepointUniqueId - Response status:', fileInfoResponse.status);
-        
         if (fileInfoResponse.ok) {
           const listItem = await fileInfoResponse.json();
-          console.log('DEBUG sharepointUniqueId - Response data:', listItem);
-          // Este es el ID numérico de la columna ID de SharePoint
           sharepointItemId = listItem.id;
-          console.log("SharePoint Item ID obtenido:", sharepointItemId);
         } else {
           const errorText = await fileInfoResponse.text();
-          console.error('DEBUG sharepointUniqueId - Error response:', errorText);
+          console.error('Error obteniendo ID de SharePoint:', errorText);
         }
       } catch (error) {
         console.warn("No se pudo obtener el ID de SharePoint:", error);
       }
-    } else {
-      console.log('DEBUG sharepointUniqueId - No currentFileId available');
     }
 
-      // Obtener usuario actual
       const userResponse = await fetch("https://graph.microsoft.com/v1.0/me", {
         headers: { Authorization: `Bearer ${this.props.accessToken}` }
       });
       const user = await userResponse.json();
-      // this.state.currentMetadata.DateModified = now;
-      console.log('DEBUG sharepointUniqueId - Final sharepointItemId value:', sharepointItemId);
       const listItem = {
         Title: this.state.currentTitle,
         FileId: this.state.currentFileId,
@@ -1220,7 +1127,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
         DocID: this.state.currentDocId ? parseInt(this.state.currentDocId) : null,
         FechaSolicitud: new Date().toISOString()
       };
-      console.log('DEBUG sharepointUniqueId - Final listItem to save:', listItem);
       const response = await fetch(
         `https://graph.microsoft.com/v1.0/sites/${siteResponse.data}/lists/${this.METADATA_QUEUE_LIST_ID}/items`,
         {
@@ -1236,7 +1142,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
         const errorData = await response.json();
         throw new Error(`Error escribiendo en lista: ${response.status} - ${errorData.error?.message || 'Error desconocido'}`);
       }
-      console.log('DEBUG writeToMetadataQueue - Successfully saved to metadata queue');
     } catch (error) {
       console.error("Error en writeToMetadataQueue:", error);
       throw error;
@@ -1451,7 +1356,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
       );
 
       if (targetDrive && this.state.currentFileId) {
-        //await this.updateFileContentDirect(targetDrive.id, this.state.currentFileId, documentBlob);
         const currentBaseName = this.extractBaseTitle(this.state.currentTitle);
         if (currentBaseName !== baseFileName) {
           const newFileName = `${baseFileName}-${finalDocId}${this.getFileExtension()}`;
@@ -1701,7 +1605,6 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
         );
 
         if (targetDrive && this.state.currentFileId) {
-          //await this.updateFileContentWithRetry(targetDrive.id, this.state.currentFileId, documentBlob);
           const currentBaseName = this.extractBaseTitle(this.state.currentTitle);
           if (currentBaseName !== baseFileName) {
             const newFileName = `${baseFileName}-${finalDocId}${this.getFileExtension()}`;
@@ -1884,7 +1787,7 @@ export default class DocumentTitleEditor extends React.Component<DocumentTitleEd
           try {
             await context.sync();
           } catch (saveError) {
-            console.log("PowerPoint: usando método de sincronización");
+            // PowerPoint uses sync method for saving
           }
         });
       }

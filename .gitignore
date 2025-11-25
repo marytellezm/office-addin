@@ -69,3 +69,7 @@ dist/**
 
 # Exclude zip files
 *.zip
+
+# Exclude production folders
+prod 02-10-20225/
+version de prod 07-11-2025/

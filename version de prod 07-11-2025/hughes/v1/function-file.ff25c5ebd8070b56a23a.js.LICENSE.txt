@@ -1,1 +1,0 @@
-/*! office-add-in-microsoft-graph-react v.1.1.0 (1751937241592) ©  */

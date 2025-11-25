@@ -61,18 +61,17 @@ export const checkExistingAuth = async (
             authStatus: 'loggedIn',
             headerMessage: `Bienvenido ${response.account?.name || response.account?.username}`
           });
-          console.log(`User ${response.account?.username} automatically signed in`);
           return true;
         }
       } catch (silentError) {
         // Silent token acquisition failed, might be expired or revoked
-        console.log('Silent token acquisition failed:', silentError);
+        // Silent token acquisition failed
         // displayError((silentError as Error).message || 'Silent authentication failed. Please log in again.');
         // If it's an interaction required error, we'll need interactive login
         if (silentError.errorCode === 'interaction_required' || 
             silentError.errorCode === 'consent_required' ||
             silentError.errorCode === 'login_required') {
-          console.log('Interactive login required for user:', account.username);
+          // Interactive login required
         }
       }
     }
@@ -232,7 +231,6 @@ export const logoutFromO365 = async (setState: (x: AppState) => void,
         if (currentAccount) {
             // Log out the current user's account
             await pca.logout({ account: currentAccount, postLogoutRedirectUri: window.location.origin });
-            console.log(`Logged out user: ${currentAccount.username}`);
         } else if (accounts.length > 0) {
             // Fallback: log out the first account if we can't find the specific one
             await pca.logout({ account: accounts[0], postLogoutRedirectUri: window.location.origin });
