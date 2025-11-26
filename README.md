@@ -230,24 +230,65 @@ El código está organizado en módulos:
 - **Config**: Archivos de configuración
 - **Interfaces**: Definiciones de tipos TypeScript
 
-## Mejoras Recientes
+## Despliegue y Compilación
 
-- ✅ Código limpio: Eliminación de comentarios innecesarios y código comentado
-- ✅ Documentación mejorada: Comentarios importantes traducidos al inglés con formato JSDoc
-- ✅ Optimización: Eliminación de console.logs de depuración
-- ✅ Estructura: Organización mejorada del código y documentación
+### Versión en Producción
 
-## Notas Importantes
+La versión compilada actual del add-in está disponible en:
 
-### Carpetas Excluidas del Repositorio
+**URL de Producción**: [https://hughes.stg-php8.site/]
 
-Las siguientes carpetas están excluidas del control de versiones (ver `.gitignore`):
+Esta es la versión compilada y optimizada del add-in que está actualmente en uso.
 
-- `prod 02-10-20225/` - Versiones de producción antiguas
-- `version de prod 07-11-2025/` - Versiones de producción
-- `dist/` - Archivos compilados
-- `node_modules/` - Dependencias de Node.js
-- `*.zip` - Archivos comprimidos
+### Compilar para tu Propio Servidor
+
+Si deseas compilar y desplegar el add-in en tu propio servidor, sigue estos pasos:
+
+#### Requisitos para Despliegue
+
+- **Servidor Web**: Servidor HTTP/HTTPS con soporte para archivos estáticos
+- **HTTPS**: El servidor debe tener un certificado SSL válido (requerido por Office Add-ins)
+- **Node.js**: Versión 18.20.2 o superior (para compilación)
+- **npm**: Versión 10.5.0 o superior
+- **Dominio**: Un dominio válido con certificado SSL
+
+#### Pasos para Compilar y Desplegar
+
+1. **Compilar el proyecto**:
+   ```bash
+   npm run build
+   ```
+   Esto generará los archivos compilados en la carpeta `dist/`
+
+2. **Configurar el servidor**:
+   - Sube todos los archivos de la carpeta `dist/` a tu servidor web
+   - Asegúrate de que el servidor esté configurado para servir archivos estáticos
+   - Verifica que el servidor tenga un certificado SSL válido
+
+3. **Actualizar el manifiesto**:
+   - Abre el archivo `manifest.xml`
+   - Actualiza todas las URLs de `https://localhost:3000` a tu URL de producción
+   - Actualiza el `SourceLocation` y `Resources` con tu URL base
+
+4. **Configurar Azure AD**:
+   - En el Portal de Azure, actualiza el URI de redirección de tu aplicación
+   - Agrega tu nueva URL de producción (ej: `https://tudominio.com/login/login.html`)
+   - Asegúrate de que los permisos de la aplicación estén correctamente configurados
+
+5. **Verificar el despliegue**:
+   - Accede a tu URL de producción en un navegador
+   - Verifica que todos los recursos se carguen correctamente
+   - Prueba la autenticación con Microsoft 365
+
+#### Notas Importantes sobre el Despliegue
+
+- **CORS**: Asegúrate de que tu servidor permita las solicitudes CORS necesarias
+- **Cache**: Configura los headers de cache apropiados para los archivos estáticos
+- **Seguridad**: Implementa medidas de seguridad adicionales según sea necesario
+- **Monitoreo**: Considera implementar monitoreo y logging para producción
+
+
+
 
 ### Sistema de Caché
 
@@ -265,7 +306,3 @@ Para problemas o preguntas:
 - Revise la documentación de Office Add-ins
 - Consulte Microsoft Q&A con la etiqueta `office-js-dev`
 - Cree un issue en el repositorio del proyecto
-
-## Licencia
-
-Este proyecto es parte de los ejemplos de Office Add-in de Microsoft.
